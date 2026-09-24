@@ -1,0 +1,33 @@
+name: Extract map tiles
+
+on:
+  push:
+    paths:
+      - "UK_Voyage_FINAL_TILE_PACK.zip"
+      - ".github/workflows/extract-tiles.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract tile pack
+        run: |
+          rm -rf tiles
+          mkdir -p tiles
+          unzip -o UK_Voyage_FINAL_TILE_PACK.zip -d tiles
+          find tiles -type f ! -name '*.png' -delete
+
+      - name: Commit extracted PNG tiles
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tiles
+          git commit -m "Add UK Voyage map tiles" || echo "No tile changes to commit"
+          git push
